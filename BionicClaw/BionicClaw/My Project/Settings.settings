@@ -1,0 +1,36 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="OBSHost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="OBSPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">4444</Value>
+    </Setting>
+    <Setting Name="OBSPass" Type="System.String" Scope="User">
+      <Value Profile="(Default)">password</Value>
+    </Setting>
+    <Setting Name="TwitchUsername" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TwitchOAuth" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TwitchChannel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">matteatsmochi</Value>
+    </Setting>
+    <Setting Name="Interval" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="Cooldown" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="Media" Type="System.String" Scope="User">
+      <Value Profile="(Default)">~~</Value>
+    </Setting>
+    <Setting Name="Reset" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">120000</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
