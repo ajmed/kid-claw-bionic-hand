@@ -62,7 +62,7 @@ byte COMMUNICATION_DICTIONARY[256];
 // 3) add the const gesture to the GESTURES array
 // 4) add an entry to the COMMUNICATION_DICTIONARY
 // 5) add a case to the loop function
-const int N_GESTURES = 14;
+const int N_GESTURES = 15;
 const Gesture defaultGesture = (Gesture) {6,6,6,6,6};
 const Gesture middleFingerGesture = (Gesture) {0,0,6,0,0};
 const Gesture thumbsUpGesture = (Gesture) {0,0,0,0,6};
@@ -77,6 +77,7 @@ const Gesture rockOutGesture = (Gesture) {6,0,0,6,0};
 const Gesture peaceGesture = (Gesture) {0,0,6,6,0};
 const Gesture okGesture = (Gesture) {6,6,6,0,0};
 const Gesture loserGesture = (Gesture) {0,0,0,6,6};
+const Gesture scoutsHonorGesture = (Gesture) {0,6,6,6,0};
 
 
 Gesture GESTURES[N_GESTURES];
@@ -224,17 +225,20 @@ void makeGesture(int* fingerPositions) {
   delay(maxExpectedTime + 50);
 }
 
-void cycleFinger(int fingerId) {
-  int i = fingerId - 1;
-  fingers[i].servo.Position = fingers[i].minServoPos;
-  fingers[i].fingerPos = 0;
-  myse.moveServo(fingerId, fingers[i].servo.Position, 1500);
-  delay(1550);
-  
-  fingers[i].servo.Position = fingers[i].maxServoPos;
-  fingers[i].fingerPos = 11;
-  myse.moveServo(fingerId, fingers[i].servo.Position, 1500);
-  delay(1550);
+void fingerRoll(boolean isUp) {
+  int i;
+  for (i = 0; i < N_FINGERS; i++) {
+    if (isUp) {
+      fingers[i].servo.Position = fingers[i].maxServoPos;
+      fingers[i].fingerPos = MAX_FINGER_POS;
+    } else {
+      fingers[i].servo.Position = fingers[i].minServoPos;
+      fingers[i].fingerPos = MIN_FINGER_POS;
+    }
+    myse.moveServo(fingers[i].servo.ID, fingers[i].servo.Position, 500);
+    delay(150);
+  }
+  delay(400);
 }
 
 void setup() {
@@ -264,6 +268,9 @@ void setup() {
   COMMUNICATION_DICTIONARY[111] = 111; // peaceGesture
   COMMUNICATION_DICTIONARY[112] = 112; // okGesture
   COMMUNICATION_DICTIONARY[113] = 113; // loserGesture
+  COMMUNICATION_DICTIONARY[114] = 114; // scoutsHonorGesture
+
+  COMMUNICATION_DICTIONARY[180] = 180; // cyclefinger
   
   COMMUNICATION_DICTIONARY[201] = 201; // pause 1.0 second
   COMMUNICATION_DICTIONARY[202] = 202; // pause 1.5 second
@@ -300,6 +307,7 @@ void setup() {
   GESTURES[11] = peaceGesture;
   GESTURES[12] = okGesture;
   GESTURES[13] = loserGesture;
+  GESTURES[14] = scoutsHonorGesture;
 
   DELAYS[0] = 1000;
   DELAYS[1] = 1500;
@@ -355,44 +363,22 @@ void setup() {
 
 int comms = 0;
 
-void loop() {
-  while(Serial.available()) {
-    comms = Serial.parseInt();
-    if (comms == 0)
+void handleComms(int comms) {
+  if (comms == 0)
       return;
     switch (comms) {
       
       /* ===== Increment/Decrement ===== */
-      case 1:
-        incrementFinger(PINKY_ID);
-        break;
-      case 2:
-        decrementFinger(PINKY_ID);
-        break;
-      case 3:
-        incrementFinger(RING_ID);
-        break;
-      case 4:
-        decrementFinger(RING_ID);
-        break;
-      case 5:
-        incrementFinger(MIDDLE_ID);
-        break;
-      case 6:
-        decrementFinger(MIDDLE_ID);
-        break;
-      case 7:
-        incrementFinger(INDEX_ID);
-        break;
-      case 8:
-        decrementFinger(INDEX_ID);
-        break;
-      case 9:
-        incrementFinger(THUMB_ID);
-        break;
-      case 10:
-        decrementFinger(THUMB_ID);
-        break;
+      case 1: incrementFinger(PINKY_ID); break;
+      case 2: decrementFinger(PINKY_ID); break;
+      case 3: incrementFinger(RING_ID); break;
+      case 4: decrementFinger(RING_ID); break;
+      case 5: incrementFinger(MIDDLE_ID); break;
+      case 6: decrementFinger(MIDDLE_ID); break;
+      case 7: incrementFinger(INDEX_ID); break;
+      case 8: decrementFinger(INDEX_ID); break;
+      case 9: incrementFinger(THUMB_ID); break;
+      case 10: decrementFinger(THUMB_ID); break;
 
       /* ===== Gestures ===== */
       case 100:
@@ -408,7 +394,8 @@ void loop() {
       case 110:
       case 111:
       case 112:
-      case 113:{
+      case 113:
+      case 114:{
         int i = 0;
         int fingerPositions[N_FINGERS];
         Gesture gesture = GESTURES[commsToGestureIndex(comms)];
@@ -417,6 +404,15 @@ void loop() {
           fingerPositions[i] = gestureIndex[i];
         }
         makeGesture(fingerPositions);
+        break;
+      }
+
+      case 180: { // wave goodbye
+        handleComms(100);
+        int i = 0;
+        for (i = 0; i < 6; i++) {
+          fingerRoll(i % 2 != 0);
+        }
         break;
       }
         
@@ -429,9 +425,7 @@ void loop() {
       case 206:
       case 207:
       case 208:
-      case 209:
-        delay(DELAYS[commsToDelayIndex(comms)]);
-        break;
+      case 209: delay(DELAYS[commsToDelayIndex(comms)]); break;
       case 210:
       case 211:
       case 212:
@@ -442,15 +436,17 @@ void loop() {
       case 217:
       case 218:
       case 219:
-      case 220:
-        delay((comms - 200) * 1000);
-        break;
+      case 220: delay((comms - 200) * 1000); break;
 
-      default:
-        Serial.println(0);
-        return;
+      default: Serial.println(0); return;
     }
     Serial.println(comms);
+}
+
+void loop() {
+  while(Serial.available()) {
+    comms = Serial.parseInt();
+    handleComms(comms);
   }
 }
 
