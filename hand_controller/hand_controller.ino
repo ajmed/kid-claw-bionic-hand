@@ -35,15 +35,15 @@ const int MAX_THUMB_POS = 900;
 const float TICK_SPEED = 1.3;
 
 const int MIN_FINGER_POS = 0;
-const int MAX_FINGER_POS = 11;
-const int N_INCREMENTS = 12;
+const int MAX_FINGER_POS = 6;
+const int N_INCREMENTS = 6;
 
 struct Finger {
   LobotServo servo; // ID and Position
   int minServoPos;
   int maxServoPos;
-  int fingerPos; // integer between 0 and 11 inclusive
-  int incrementSize; // maxServoPos - minServoPos / 12
+  int fingerPos; // integer between 0 and 5 inclusive
+  int incrementSize; // maxServoPos - minServoPos / N_INCREMENTS
 };
 
 struct Gesture {
@@ -60,19 +60,24 @@ byte COMMUNICATION_DICTIONARY[256];
 // 1) increment N_GESTURES
 // 2) add a const gesture
 // 3) add the const gesture to the GESTURES array
-// 4) add an entry to the COMMUNICATION_DICTIONARY 
+// 4) add an entry to the COMMUNICATION_DICTIONARY
 // 5) add a case to the loop function
-const int N_GESTURES = 10;
-const Gesture defaultGesture = (Gesture) {11,11,11,11,11};
-const Gesture middleFingerGesture = (Gesture) {0,0,11,0,0};
-const Gesture thumbsUpGesture = (Gesture) {0,0,0,0,11};
-const Gesture pinkysOutGesture = (Gesture) {11,0,0,0,0};
-const Gesture ringOnItGesture = (Gesture) {0,11,0,0,0};
-const Gesture rudePointingGesture = (Gesture) {0,0,0,11,0};
+const int N_GESTURES = 14;
+const Gesture defaultGesture = (Gesture) {6,6,6,6,6};
+const Gesture middleFingerGesture = (Gesture) {0,0,6,0,0};
+const Gesture thumbsUpGesture = (Gesture) {0,0,0,0,6};
+const Gesture pinkysOutGesture = (Gesture) {6,0,0,0,0};
+const Gesture ringOnItGesture = (Gesture) {0,6,0,0,0};
+const Gesture rudePointingGesture = (Gesture) {0,0,0,6,0};
 const Gesture powerFistGesture = (Gesture) {0,0,0,0,0};
-const Gesture spiderManGesture = (Gesture) {11,0,0,11,11};
-const Gesture theStinkGesture = (Gesture) {11,0,11,11,0};
-const Gesture hangLooseGesture = (Gesture) {11,0,0,0,11};
+const Gesture spiderManGesture = (Gesture) {6,0,0,6,6};
+const Gesture theStinkGesture = (Gesture) {6,0,6,6,0};
+const Gesture hangLooseGesture = (Gesture) {6,0,0,0,6};
+const Gesture rockOutGesture = (Gesture) {6,0,0,6,0};
+const Gesture peaceGesture = (Gesture) {0,0,6,6,0};
+const Gesture okGesture = (Gesture) {6,6,6,0,0};
+const Gesture loserGesture = (Gesture) {0,0,0,6,6};
+
 
 Gesture GESTURES[N_GESTURES];
 Finger fingers[N_FINGERS];
@@ -187,8 +192,8 @@ void incrementFinger(int fingerId) {
   }
 }
 
-int fingerPosToServoPos(int fingerId, int fingerPos) {
-  int i = fingerId - 1;
+int fingerPosToServoPos(int servoId, int fingerPos) {
+  int i = servoId - 1;
   int minPos = fingers[i].minServoPos;
   int maxPos = fingers[i].maxServoPos;
   int newFingerPos = constrain(fingerPos, MIN_FINGER_POS, MAX_FINGER_POS);
@@ -201,16 +206,18 @@ void makeGesture(int* fingerPositions) {
   LobotServo servos[5];
   int i = 0;
   int fingerPos = 0;
+  int newFingerPos = 0;
   int expectedTime = 0;
   int maxExpectedTime = 1500;
   for (i = 0; i < N_FINGERS; i++) {
     fingerPos = fingerPositions[i];
+    newFingerPos = constrain(fingerPos, MIN_FINGER_POS, MAX_FINGER_POS);
     servos[i].ID = i + 1;
     servos[i].Position = fingerPosToServoPos(i + 1, fingerPos);
     expectedTime = findExpectedTime(fingers[i].servo.Position, servos[i].Position);
     maxExpectedTime = max(expectedTime, maxExpectedTime);
     fingers[i].servo.Position = servos[i].Position;
-    fingers[i].fingerPos = fingerPos;
+    fingers[i].fingerPos = newFingerPos;
   }
   
   myse.moveServos(servos, N_FINGERS, maxExpectedTime);
@@ -253,6 +260,10 @@ void setup() {
   COMMUNICATION_DICTIONARY[107] = 107; // spiderManGesture
   COMMUNICATION_DICTIONARY[108] = 108; // theStinkGesture
   COMMUNICATION_DICTIONARY[109] = 109; // hangLooseGesture
+  COMMUNICATION_DICTIONARY[110] = 110; // rockOutGesture
+  COMMUNICATION_DICTIONARY[111] = 111; // peaceGesture
+  COMMUNICATION_DICTIONARY[112] = 112; // okGesture
+  COMMUNICATION_DICTIONARY[113] = 113; // loserGesture
   
   COMMUNICATION_DICTIONARY[201] = 201; // pause 1.0 second
   COMMUNICATION_DICTIONARY[202] = 202; // pause 1.5 second
@@ -285,6 +296,10 @@ void setup() {
   GESTURES[7] = spiderManGesture;
   GESTURES[8] = theStinkGesture;
   GESTURES[9] = hangLooseGesture;
+  GESTURES[10] = rockOutGesture;
+  GESTURES[11] = peaceGesture;
+  GESTURES[12] = okGesture;
+  GESTURES[13] = loserGesture;
 
   DELAYS[0] = 1000;
   DELAYS[1] = 1500;
@@ -329,11 +344,11 @@ void setup() {
 
   int fingerPositions[N_FINGERS];
   for (i = 0; i < N_FINGERS; i++) {
-    fingerPositions[i] = 0;
+    fingerPositions[i] = MIN_FINGER_POS;
   }
   makeGesture(fingerPositions);
   for (i = 0; i < N_FINGERS; i++) {
-    fingerPositions[i] = 11;
+    fingerPositions[i] = MAX_FINGER_POS;
   }
   makeGesture(fingerPositions);
 }
@@ -389,7 +404,11 @@ void loop() {
       case 106:
       case 107:
       case 108:
-      case 109: {
+      case 109:
+      case 110:
+      case 111:
+      case 112:
+      case 113:{
         int i = 0;
         int fingerPositions[N_FINGERS];
         Gesture gesture = GESTURES[commsToGestureIndex(comms)];

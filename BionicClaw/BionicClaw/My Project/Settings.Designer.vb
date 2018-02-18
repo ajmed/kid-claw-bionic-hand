@@ -80,7 +80,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("password")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("12345")>  _
         Public Property OBSPass() As String
             Get
                 Return CType(Me("OBSPass"),String)
@@ -116,7 +116,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("matteatsmochi")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
         Public Property TwitchChannel() As String
             Get
                 Return CType(Me("TwitchChannel"),String)

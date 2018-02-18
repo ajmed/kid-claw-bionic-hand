@@ -98,7 +98,7 @@ void LobotServoController::moveServos(uint8_t Num, uint16_t Time, ...)
 	buf[6] = GET_HIGH_BYTE(Time);
 	uint8_t index = 7;
 	for (uint8_t i = 0; i < Num; i++) { 
-		uint16_t tmp = va_arg(arg_ptr, uint16_t); /
+		uint16_t tmp = va_arg(arg_ptr, uint16_t);
 		buf[index++] = GET_LOW_BYTE(tmp); 
 
 		uint16_t pos = va_arg(arg_ptr, uint16_t);

@@ -62,11 +62,6 @@ Partial Class frmClaw
         Me.lstMedia = New System.Windows.Forms.ListBox()
         Me.cmdMediaBack = New System.Windows.Forms.Button()
         Me.cmdMediaSettings = New System.Windows.Forms.Button()
-        Me.lblPinkyPosition = New System.Windows.Forms.Label()
-        Me.lblRingPosition = New System.Windows.Forms.Label()
-        Me.lblMiddlePosition = New System.Windows.Forms.Label()
-        Me.lblIndexPosition = New System.Windows.Forms.Label()
-        Me.lblThumbPosition = New System.Windows.Forms.Label()
         Me.grpCooldown = New System.Windows.Forms.GroupBox()
         Me.txtInterval = New System.Windows.Forms.TextBox()
         Me.lblInterval = New System.Windows.Forms.Label()
@@ -95,6 +90,12 @@ Partial Class frmClaw
         Me.picOBSReady = New System.Windows.Forms.PictureBox()
         Me.picTwitchReady = New System.Windows.Forms.PictureBox()
         Me.picClaw = New System.Windows.Forms.PictureBox()
+        Me.tmrText = New System.Windows.Forms.Timer(Me.components)
+        Me.tmrClock = New System.Windows.Forms.Timer(Me.components)
+        Me.tmrTopCountdown = New System.Windows.Forms.Timer(Me.components)
+        Me.tmrIntro = New System.Windows.Forms.Timer(Me.components)
+        Me.lblTopTotalSeconds = New System.Windows.Forms.Label()
+        Me.lblClock = New System.Windows.Forms.Label()
         Me.grpTwitch.SuspendLayout()
         Me.grpOBS.SuspendLayout()
         Me.grpMedia.SuspendLayout()
@@ -465,51 +466,6 @@ Partial Class frmClaw
         Me.cmdMediaSettings.Text = "Media Settings"
         Me.cmdMediaSettings.UseVisualStyleBackColor = True
         '
-        'lblPinkyPosition
-        '
-        Me.lblPinkyPosition.AutoSize = True
-        Me.lblPinkyPosition.Location = New System.Drawing.Point(54, 50)
-        Me.lblPinkyPosition.Name = "lblPinkyPosition"
-        Me.lblPinkyPosition.Size = New System.Drawing.Size(13, 13)
-        Me.lblPinkyPosition.TabIndex = 444
-        Me.lblPinkyPosition.Text = "0"
-        '
-        'lblRingPosition
-        '
-        Me.lblRingPosition.AutoSize = True
-        Me.lblRingPosition.Location = New System.Drawing.Point(67, 36)
-        Me.lblRingPosition.Name = "lblRingPosition"
-        Me.lblRingPosition.Size = New System.Drawing.Size(13, 13)
-        Me.lblRingPosition.TabIndex = 445
-        Me.lblRingPosition.Text = "0"
-        '
-        'lblMiddlePosition
-        '
-        Me.lblMiddlePosition.AutoSize = True
-        Me.lblMiddlePosition.Location = New System.Drawing.Point(81, 31)
-        Me.lblMiddlePosition.Name = "lblMiddlePosition"
-        Me.lblMiddlePosition.Size = New System.Drawing.Size(13, 13)
-        Me.lblMiddlePosition.TabIndex = 446
-        Me.lblMiddlePosition.Text = "0"
-        '
-        'lblIndexPosition
-        '
-        Me.lblIndexPosition.AutoSize = True
-        Me.lblIndexPosition.Location = New System.Drawing.Point(95, 40)
-        Me.lblIndexPosition.Name = "lblIndexPosition"
-        Me.lblIndexPosition.Size = New System.Drawing.Size(13, 13)
-        Me.lblIndexPosition.TabIndex = 447
-        Me.lblIndexPosition.Text = "0"
-        '
-        'lblThumbPosition
-        '
-        Me.lblThumbPosition.AutoSize = True
-        Me.lblThumbPosition.Location = New System.Drawing.Point(121, 84)
-        Me.lblThumbPosition.Name = "lblThumbPosition"
-        Me.lblThumbPosition.Size = New System.Drawing.Size(13, 13)
-        Me.lblThumbPosition.TabIndex = 448
-        Me.lblThumbPosition.Text = "0"
-        '
         'grpCooldown
         '
         Me.grpCooldown.Controls.Add(Me.txtInterval)
@@ -761,22 +717,55 @@ Partial Class frmClaw
         Me.picClaw.TabIndex = 434
         Me.picClaw.TabStop = False
         '
+        'tmrText
+        '
+        Me.tmrText.Interval = 5000
+        '
+        'tmrClock
+        '
+        Me.tmrClock.Interval = 10
+        '
+        'tmrTopCountdown
+        '
+        Me.tmrTopCountdown.Interval = 1000
+        '
+        'tmrIntro
+        '
+        Me.tmrIntro.Interval = 167000
+        '
+        'lblTopTotalSeconds
+        '
+        Me.lblTopTotalSeconds.AutoSize = True
+        Me.lblTopTotalSeconds.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTopTotalSeconds.Location = New System.Drawing.Point(282, 66)
+        Me.lblTopTotalSeconds.Name = "lblTopTotalSeconds"
+        Me.lblTopTotalSeconds.Size = New System.Drawing.Size(18, 20)
+        Me.lblTopTotalSeconds.TabIndex = 453
+        Me.lblTopTotalSeconds.Text = "0"
+        '
+        'lblClock
+        '
+        Me.lblClock.AutoSize = True
+        Me.lblClock.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblClock.Location = New System.Drawing.Point(257, 29)
+        Me.lblClock.Name = "lblClock"
+        Me.lblClock.Size = New System.Drawing.Size(43, 20)
+        Me.lblClock.TabIndex = 454
+        Me.lblClock.Text = "Time"
+        '
         'frmClaw
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1385, 417)
+        Me.ClientSize = New System.Drawing.Size(1339, 361)
+        Me.Controls.Add(Me.lblClock)
+        Me.Controls.Add(Me.lblTopTotalSeconds)
         Me.Controls.Add(Me.grpResetTimer)
         Me.Controls.Add(Me.grpCooldown)
         Me.Controls.Add(Me.grpMedia)
         Me.Controls.Add(Me.grpOBS)
         Me.Controls.Add(Me.grpTwitch)
         Me.Controls.Add(Me.lstQueue)
-        Me.Controls.Add(Me.lblThumbPosition)
-        Me.Controls.Add(Me.lblIndexPosition)
-        Me.Controls.Add(Me.lblMiddlePosition)
-        Me.Controls.Add(Me.lblRingPosition)
-        Me.Controls.Add(Me.lblPinkyPosition)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.lblBTC)
@@ -839,11 +828,6 @@ Partial Class frmClaw
     Friend WithEvents grpMedia As GroupBox
     Friend WithEvents cmdMediaBack As Button
     Friend WithEvents cmdMediaSettings As Button
-    Friend WithEvents lblPinkyPosition As Label
-    Friend WithEvents lblRingPosition As Label
-    Friend WithEvents lblMiddlePosition As Label
-    Friend WithEvents lblIndexPosition As Label
-    Friend WithEvents lblThumbPosition As Label
     Friend WithEvents grpCooldown As GroupBox
     Friend WithEvents lstCooldownUser As ListBox
     Friend WithEvents lstCooldownTime As ListBox
@@ -883,4 +867,10 @@ Partial Class frmClaw
     Friend WithEvents Button3 As Button
     Friend WithEvents Button2 As Button
     Friend WithEvents Button1 As Button
+    Friend WithEvents tmrText As Timer
+    Friend WithEvents tmrClock As Timer
+    Friend WithEvents tmrTopCountdown As Timer
+    Friend WithEvents tmrIntro As Timer
+    Friend WithEvents lblTopTotalSeconds As Label
+    Friend WithEvents lblClock As Label
 End Class

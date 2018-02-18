@@ -20,24 +20,13 @@ Public Class frmClaw
     Dim MediaScene As String
     Dim MediaSource As String
     Dim MediaDuration As Integer
+    Dim TextSource As String
+    Dim TextScene As String
 
-    Dim IndexPuzzle As Integer
-    Dim MiddlePuzzle As Integer
-    Dim RingPuzzle As Integer
-    Dim PinkyPuzzle As Integer
-    Dim ThumbPuzzle As Integer
-    Dim PuzzleScene As String
-    Dim PuzzleSource As String
-    Dim PuzzleDuration As Integer
+    Dim Muted As Boolean
 
     'Claw Control
     Private arduinoController As ArduinoController
-
-    Dim IndexPosition As Integer = 0
-    Dim MiddlePosition As Integer = 0
-    Dim RingPosition As Integer = 0
-    Dim PinkyPosition As Integer = 0
-    Dim ThumbPosition As Integer = 0
 
     'OBS Control
     Dim _ws As WebSocket
@@ -46,6 +35,11 @@ Public Class frmClaw
     'Reset Timer Control
     Dim Hours, Minutes, Seconds As Integer
     Dim Timer As String = Nothing
+
+    'Top of the Hour Control
+    Dim Clock As String
+    Dim TopHours, TopMinutes, TopSeconds As Integer
+    Dim TopTimer As String = Nothing
 
 
 #Region "OBS Structure"
@@ -95,10 +89,6 @@ Public Class frmClaw
 
         'Load Media
         LoadMediaString()
-
-        'Claw Control
-        'InitializeComponent()
-        InitializeArduinoControllerAndHandlers()
 
     End Sub
     Private Sub frmClaw_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -526,23 +516,33 @@ Public Class frmClaw
             RemoveSpace = RemoveSpace.Replace(" ", "")
             If UCase(RemoveSpace).Contains("INDEX+") Then
                 lstQueue.Items.Add("INDEX+")
+                lstQueue.Items.Add("INDEX+")
             ElseIf UCase(RemoveSpace).Contains("INDEX-") Then
+                lstQueue.Items.Add("INDEX-")
                 lstQueue.Items.Add("INDEX-")
             ElseIf UCase(RemoveSpace).Contains("MIDDLE+") Then
                 lstQueue.Items.Add("MIDDLE+")
+                lstQueue.Items.Add("MIDDLE+")
             ElseIf UCase(RemoveSpace).Contains("MIDDLE-") Then
+                lstQueue.Items.Add("MIDDLE-")
                 lstQueue.Items.Add("MIDDLE-")
             ElseIf UCase(RemoveSpace).Contains("RING+") Then
                 lstQueue.Items.Add("RING+")
+                lstQueue.Items.Add("RING+")
             ElseIf UCase(RemoveSpace).Contains("RING-") Then
+                lstQueue.Items.Add("RING-")
                 lstQueue.Items.Add("RING-")
             ElseIf UCase(RemoveSpace).Contains("PINKY+") Then
                 lstQueue.Items.Add("PINKY+")
+                lstQueue.Items.Add("PINKY+")
             ElseIf UCase(RemoveSpace).Contains("PINKY-") Then
+                lstQueue.Items.Add("PINKY-")
                 lstQueue.Items.Add("PINKY-")
             ElseIf UCase(RemoveSpace).Contains("THUMB+") Then
                 lstQueue.Items.Add("THUMB+")
+                lstQueue.Items.Add("THUMB+")
             ElseIf UCase(RemoveSpace).Contains("THUMB-") Then
+                lstQueue.Items.Add("THUMB-")
                 lstQueue.Items.Add("THUMB-")
             End If
         End If
@@ -559,8 +559,11 @@ Public Class frmClaw
         AddHandler arduinoController.AllEvents, AddressOf DefaultGestureHandler
     End Sub
 
-    Private Sub DefaultGestureHandler(o As System.Object)
-        Console.WriteLine("We just handled: " & o)
+    Private Sub DefaultGestureHandler(o As String)
+        'Console.WriteLine("We just handled: " & o)
+        If CInt(o) > 99 And CInt(o) < 200 Then
+            CheckForMedia(o.ToString)
+        End If
     End Sub
 
 #End Region
@@ -587,18 +590,25 @@ Public Class frmClaw
             ConnectToTwitchChat()
             ConnectToOBS()
 
-            'ResetClaw()
+            'Claw Control
+            InitializeArduinoControllerAndHandlers()
+
+            Muted = False
+
+            ResetClaw()
             tmrQueue.Enabled = True
             tmrCooldown.Enabled = True
             cmdConnect.Enabled = False
+
+            tmrClock.Enabled = True
         End If
     End Sub
 
     Private Sub cmdSaveTwitch_Click(sender As Object, e As EventArgs) Handles cmdSaveTwitch.Click
         My.Settings.TwitchUsername = txtTwitchUsername.Text
         My.Settings.TwitchOAuth = txtTwitchOAuth.Text
+        My.Settings.TwitchChannel = txtTwitchUsername.Text
         OBSTwitchReady()
-        'My.Settings.TwitchChannel = txtTwitchUsername.Text
     End Sub
 
     Private Sub cmdTwitchBack_Click(sender As Object, e As EventArgs) Handles cmdTwitchBack.Click
@@ -662,81 +672,35 @@ Public Class frmClaw
             tmrQueue.Enabled = False
             tmrReset.Enabled = False
 
-            PlayMedia()
+            PlayText()
         Else
             If lstQueue.Items.Count <> 0 Then
                 lstQueue.SelectedIndex = 0
                 Dim RemoveSpace As String = lstQueue.SelectedItem
                 RemoveSpace = RemoveSpace.Replace(" ", "")
                 If UCase(RemoveSpace).Contains("INDEX+") Then
-                    If IndexPosition <> 5 Then
-                        IndexPosition += 1
-                        'Claw(0, 1)
-                        arduinoController.IndexPlus()
-                    End If
+                    arduinoController.IndexPlus()
                 ElseIf UCase(RemoveSpace).Contains("INDEX-") Then
-                    If IndexPosition <> 0 Then
-                        IndexPosition -= 1
-                        'Claw(0, -1)
-                        arduinoController.IndexMinus()
-                    End If
+                    arduinoController.IndexMinus()
                 ElseIf UCase(RemoveSpace).Contains("MIDDLE+") Then
-                    If MiddlePosition <> 5 Then
-                        MiddlePosition += 1
-                        'Claw(1, 1)
-                        arduinoController.MiddlePlus()
-                    End If
+                    arduinoController.MiddlePlus()
                 ElseIf UCase(RemoveSpace).Contains("MIDDLE-") Then
-                    If MiddlePosition <> 0 Then
-                        MiddlePosition -= 1
-                        'Claw(1, -1)
-                        arduinoController.MiddleMinus()
-                    End If
+                    arduinoController.MiddleMinus()
                 ElseIf UCase(RemoveSpace).Contains("RING+") Then
-                    If RingPosition <> 5 Then
-                        RingPosition += 1
-                        'Claw(2, 1)
-                        arduinoController.RingPlus()
-                    End If
+                    arduinoController.RingPlus()
                 ElseIf UCase(RemoveSpace).Contains("RING-") Then
-                    If RingPosition <> 0 Then
-                        RingPosition -= 1
-                        'Claw(2, -1)
-                        arduinoController.RingMinus()
-                    End If
+                    arduinoController.RingMinus()
                 ElseIf UCase(RemoveSpace).Contains("PINKY+") Then
-                    If PinkyPosition <> 5 Then
-                        PinkyPosition += 1
-                        'Claw(3, 1)
-                        arduinoController.PinkyPlus()
-                    End If
+                    arduinoController.PinkyPlus()
                 ElseIf UCase(RemoveSpace).Contains("PINKY-") Then
-                    If PinkyPosition <> 0 Then
-                        PinkyPosition -= 1
-                        'Claw(3, -1)
-                        arduinoController.PinkyMinus()
-                    End If
+                    arduinoController.PinkyMinus()
                 ElseIf UCase(RemoveSpace).Contains("THUMB+") Then
-                    If ThumbPosition <> 5 Then
-                        ThumbPosition += 1
-                        'Claw(4, 1)
-                        arduinoController.ThumbPlus()
-                    End If
+                    arduinoController.ThumbPlus()
                 ElseIf UCase(RemoveSpace).Contains("THUMB-") Then
-                    If ThumbPosition <> 0 Then
-                        ThumbPosition -= 1
-                        'Claw(4, -1)
-                        arduinoController.ThumbMinus()
-                    End If
+                    arduinoController.ThumbMinus()
                 End If
-                lblIndexPosition.Text = IndexPosition
-                lblMiddlePosition.Text = MiddlePosition
-                lblRingPosition.Text = RingPosition
-                lblPinkyPosition.Text = PinkyPosition
-                lblThumbPosition.Text = ThumbPosition
 
                 lstQueue.Items.Remove(lstQueue.SelectedItem)
-                CheckForMedia()
             End If
         End If
     End Sub
@@ -768,6 +732,7 @@ AllDone:
         tmrMedia.Enabled = False
         MediaReady = False
         tmrQueue.Enabled = True
+
         ResetClaw()
     End Sub
 
@@ -787,7 +752,7 @@ AllDone:
             'Timer = Hours.ToString.PadLeft(2, "0"c) & ":" & Minutes.ToString.PadLeft(2, "0"c) & ":" & Seconds.ToString.PadLeft(2, "0"c)
             Timer = Minutes.ToString.PadLeft(2, "0"c) & ":" & Seconds.ToString.PadLeft(2, "0"c)
 
-            Dim ALPHAVAL As String = "OnScreen.txt"
+            Dim ALPHAVAL As String = "ClawResetTimer.txt"
             System.IO.File.WriteAllText(ALPHAVAL, "")
             Dim objWriter As New System.IO.StreamWriter(ALPHAVAL, True)
             objWriter.WriteLine(Timer)
@@ -796,6 +761,62 @@ AllDone:
 
     End Sub
 
+    Private Sub tmrText_Tick(sender As Object, e As EventArgs) Handles tmrText.Tick
+        SetSourceRender(TextSource, False, TextScene)
+        tmrText.Enabled = False
+
+        PlayMedia()
+    End Sub
+
+    Private Sub tmrClock_Tick(sender As Object, e As EventArgs) Handles tmrClock.Tick
+        tmrClock.Interval = 60000
+        Clock = DateTime.Now.ToShortTimeString()
+        lblClock.Text = Clock
+        Clock = Clock.Substring(0, Clock.Length - 3)
+        Clock = Clock.Substring(Clock.Length - 2, 2)
+        If Clock = "55" Then
+
+            lblTopTotalSeconds.Text = 300
+            tmrTopCountdown.Enabled = True
+            SetSourceRender("Hour Reset Timer", True, "Claw Camera")
+            SetSourceRender("Hour Reset Info", True, "Claw Camera")
+        End If
+    End Sub
+
+    Private Sub tmrTopCountdown_Tick(sender As Object, e As EventArgs) Handles tmrTopCountdown.Tick
+        If lblTopTotalSeconds.Text = 0 Then
+            'play intro
+            SetCurrentScene("Episode 1 - Opening")
+            DesktopAudioOff()
+            tmrIntro.Enabled = True
+            SetSourceRender("Hour Reset Timer", False, "Claw Camera")
+            SetSourceRender("Hour Reset Info", False, "Claw Camera")
+            lblTopTotalSeconds.Text = 300
+            tmrTopCountdown.Enabled = False
+        Else
+            lblTopTotalSeconds.Text -= 1
+            TopSeconds = Integer.Parse(lblTopTotalSeconds.Text)
+            TopHours = TopSeconds \ 3600
+            TopSeconds = TopSeconds Mod 3600
+            TopMinutes = TopSeconds \ 60
+            TopSeconds = TopSeconds Mod 60
+            'Timer = Hours.ToString.PadLeft(2, "0"c) & ":" & Minutes.ToString.PadLeft(2, "0"c) & ":" & Seconds.ToString.PadLeft(2, "0"c)
+            TopTimer = TopMinutes.ToString.PadLeft(2, "0"c) & ":" & TopSeconds.ToString.PadLeft(2, "0"c)
+
+            Dim ALPHAVAL As String = "TopOfTheHourCountdown.txt"
+            System.IO.File.WriteAllText(ALPHAVAL, "")
+            Dim objWriter As New System.IO.StreamWriter(ALPHAVAL, True)
+            objWriter.WriteLine(TopTimer)
+            objWriter.Close()
+        End If
+    End Sub
+
+    Private Sub tmrIntro_Tick(sender As Object, e As EventArgs) Handles tmrIntro.Tick
+        SetCurrentScene("Claw Camera")
+        tmrIntro.Enabled = False
+        DesktopAudioOn()
+        ResetClaw()
+    End Sub
 #End Region
 
 #Region "Misc"
@@ -837,50 +858,44 @@ AllDone:
         Next
     End Sub
 
-    Private Sub CheckForMedia()
+    Private Sub CheckForMedia(message As String)
         Dim FirstCharacter As Integer = Nothing
         Dim QueueString As String
+        Dim MediaCode As String = Nothing
         For Each item In lstMedia.Items
             QueueString = item
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Index
-            IndexPuzzle = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Middle
-            MiddlePuzzle = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Ring
-            RingPuzzle = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Pinky
-            PinkyPuzzle = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Thumb
-            ThumbPuzzle = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Scene
-            PuzzleScene = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Source
-            PuzzleSource = QueueString.Substring(0, FirstCharacter)
-            QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
-            FirstCharacter = QueueString.IndexOf(",")
-            'find Duration
-            PuzzleDuration = QueueString.Substring(0, FirstCharacter)
+            If QueueString.StartsWith(message) Then
+                FirstCharacter = QueueString.IndexOf(",")
+                'find Media Code
+                MediaCode = QueueString.Substring(0, FirstCharacter)
+                QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
+                FirstCharacter = QueueString.IndexOf(",")
+                'find Media Source
+                MediaSource = QueueString.Substring(0, FirstCharacter)
+                QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
+                FirstCharacter = QueueString.IndexOf(",")
+                'find Media Scene
+                MediaScene = QueueString.Substring(0, FirstCharacter)
+                QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
+                FirstCharacter = QueueString.IndexOf(",")
+                'find Media Duration
+                MediaDuration = QueueString.Substring(0, FirstCharacter)
+                QueueString = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
+                FirstCharacter = QueueString.IndexOf(",")
+                'find Text Source
+                TextSource = QueueString.Substring(0, FirstCharacter)
+                'find Text Scene
+                TextScene = QueueString.Substring(FirstCharacter + 2, QueueString.Length - FirstCharacter - 2)
 
-            If IndexPosition = IndexPuzzle And MiddlePosition = MiddlePuzzle And RingPosition = RingPuzzle And PinkyPosition = PinkyPuzzle And ThumbPosition = ThumbPuzzle Then
                 MediaReady = True
-                MediaScene = PuzzleScene
-                MediaSource = PuzzleSource
-                MediaDuration = PuzzleDuration
             End If
         Next
+    End Sub
+
+    Private Sub PlayText()
+        SetSourceRender(TextSource, True, TextScene)
+        DesktopAudioOff()
+        tmrText.Enabled = True
     End Sub
 
     Private Sub PlayMedia()
@@ -894,45 +909,27 @@ AllDone:
         lstCooldownUser.Items.Clear()
         lstCooldownTime.Items.Clear()
 
-        Dim TempIndex As Integer = IndexPosition
-        Dim TempMiddle As Integer = MiddlePosition
-        Dim TempRing As Integer = RingPosition
-        Dim TempPinky As Integer = PinkyPosition
-        Dim TempThumb As Integer = ThumbPosition
-
-        Do Until TempIndex = 0
-            If TempIndex <> 0 Then
-                TempIndex -= 1
-                lstQueue.Items.Add("INDEX-")
-            End If
-        Loop
-        Do Until TempMiddle = 0
-            If TempMiddle <> 0 Then
-                TempMiddle -= 1
-                lstQueue.Items.Add("MIDDLE-")
-            End If
-        Loop
-        Do Until TempRing = 0
-            If TempRing <> 0 Then
-                TempRing -= 1
-                lstQueue.Items.Add("RING-")
-            End If
-        Loop
-        Do Until TempPinky = 0
-            If TempPinky <> 0 Then
-                TempPinky -= 1
-                lstQueue.Items.Add("PINKY-")
-            End If
-        Loop
-        Do Until TempThumb = 0
-            If TempThumb <> 0 Then
-                TempThumb -= 1
-                lstQueue.Items.Add("THUMB-")
-            End If
-        Loop
+        'Reset Arduino Claw position
+        arduinoController.SendRawCommunications("100")
 
         lblTotalSeconds.Text = My.Settings.Reset
         tmrReset.Enabled = True
+
+        DesktopAudioOn()
+    End Sub
+
+    Private Sub DesktopAudioOn()
+        If Muted Then
+            ToggleMute("Desktop Audio")
+            Muted = False
+        End If
+    End Sub
+
+    Private Sub DesktopAudioOff()
+        If Not Muted Then
+            ToggleMute("Desktop Audio")
+            Muted = True
+        End If
     End Sub
 
 #End Region
@@ -941,10 +938,14 @@ AllDone:
 #Region "Debug"
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         arduinoController.IndexPlus()
+        'SetSourceRender("Middle Finger Text", True, "Words")
+        'DesktopAudioOn()
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         arduinoController.IndexMinus()
+        'SetSourceRender("Middle Finger Text", False, "Words")
+        'DesktopAudioOff()
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
@@ -969,10 +970,6 @@ AllDone:
 
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
         arduinoController.PinkyMinus()
-    End Sub
-
-    Private Sub Button11_Click(sender As Object, e As EventArgs)
-        Console.WriteLine("YOOO WE WORKING OR NAW?!?!?")
     End Sub
 
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
