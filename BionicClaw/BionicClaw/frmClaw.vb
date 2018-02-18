@@ -27,6 +27,8 @@ Public Class frmClaw
 
     'Claw Control
     Private arduinoController As ArduinoController
+    Private completedGestures As New Dictionary(Of Integer, Boolean)
+    Private completedAllGestures As Boolean = False
 
     'OBS Control
     Dim _ws As WebSocket
@@ -89,6 +91,17 @@ Public Class frmClaw
 
         'Load Media
         LoadMediaString()
+
+        'Initialize gestures dictionary
+        Dim gestures = [Enum].GetValues(GetType(ArduinoController.Gestures))
+        For Each value In gestures
+            If (value.Equals(100)) Then
+                'do nothing because we're not trying to track the default gesture
+            Else
+                completedGestures.Add(value, False)
+            End If
+
+        Next
 
     End Sub
     Private Sub frmClaw_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -556,12 +569,23 @@ Public Class frmClaw
 #Region "Arduino Control"
     Private Sub InitializeArduinoControllerAndHandlers()
         arduinoController = New ArduinoController(9600, "COM3")
-        AddHandler arduinoController.AllEvents, AddressOf DefaultGestureHandler
+        AddHandler arduinoController.AllEvents, AddressOf GestureHandler
     End Sub
 
-    Private Sub DefaultGestureHandler(o As String)
-        'Console.WriteLine("We just handled: " & o)
+    Private Sub GestureHandler(o As String)
         If CInt(o) > 99 And CInt(o) < 200 Then
+            Try
+                completedGestures(CInt(o)) = True
+                'First assume we have completed all the gestures, then AND it with each completedGesture
+                'The moment we AND with a false value, the completedAllGestures will go false as well.
+                completedAllGestures = True
+                For Each kvp As KeyValuePair(Of Integer, Boolean) In completedGestures
+                    completedAllGestures &= kvp.Value
+                Next
+            Catch ex As Exception
+                'couldn't find the gesture in the completed gestures map
+            End Try
+
             CheckForMedia(o.ToString)
         End If
     End Sub

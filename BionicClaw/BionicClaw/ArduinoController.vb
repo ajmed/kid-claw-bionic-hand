@@ -3,44 +3,32 @@ Imports System.IO.Ports
 Imports System.Threading.Tasks
 
 Public Class ArduinoController
-    'The following SendOrPostCallback objects are typed event handlers whose return value is void
-    'and single input parameter is of type object
-    '(i.e.
-    '   int myDefaultGestureHandler(object state) {
-    '       Console.WriteLine("The default event handler was triggered!");
-    '   }
-    '
-    '   DefaultGesture += myDefaultGestureHandler;
-    ')
+
+    Enum Gestures
+        DefaultGesture = 100
+        MiddleFinger = 101
+        ThumbsUp = 102
+        PinkysOut = 103
+        RingOnIt = 104
+        RudePointing = 105
+        PowerFist = 106
+        SpiderMan = 107
+        TheStink = 108
+        HangLoose = 109
+        RockOut = 110
+        Peace = 111
+        Ok = 112
+        Loser = 113
+        ScoutsHonor = 114
+    End Enum
 
     Public Event AllEvents(ByVal commsCode As String)
-    Public DefaultGesture As SendOrPostCallback
-    Public MiddleFingerGesture As SendOrPostCallback
-    Public ThumbsUpGesture As SendOrPostCallback
-    Public PinkysOutGesture As SendOrPostCallback
-    Public RingOnItGesture As SendOrPostCallback
-    Public RudePointingGesture As SendOrPostCallback
-    Public PowerFistGesture As SendOrPostCallback
-    Public SpiderManGesture As SendOrPostCallback
-    Public TheStinkGesture As SendOrPostCallback
-
-    Private receiveCommsDictionary As System.Collections.Generic.Dictionary(Of String, SendOrPostCallback)
 
     Private arduinoSerialPort As SerialPort
 
     Private originalSynchronizationContext As SynchronizationContext
 
     Public Sub New(ByVal baudRate As Integer, ByVal portName As String)
-        receiveCommsDictionary = New System.Collections.Generic.Dictionary(Of String, SendOrPostCallback)()
-        receiveCommsDictionary.Add("100", DefaultGesture)
-        receiveCommsDictionary.Add("101", MiddleFingerGesture)
-        receiveCommsDictionary.Add("102", ThumbsUpGesture)
-        receiveCommsDictionary.Add("103", PinkysOutGesture)
-        receiveCommsDictionary.Add("104", RingOnItGesture)
-        receiveCommsDictionary.Add("105", RudePointingGesture)
-        receiveCommsDictionary.Add("106", PowerFistGesture)
-        receiveCommsDictionary.Add("107", SpiderManGesture)
-        receiveCommsDictionary.Add("108", TheStinkGesture)
         arduinoSerialPort = New SerialPort()
         arduinoSerialPort.BaudRate = baudRate
         arduinoSerialPort.PortName = portName
@@ -63,11 +51,6 @@ Public Class ArduinoController
         While arduinoSerialPort.IsOpen
             Dim commsCode As String = arduinoSerialPort.ReadLine().Trim()
             originalSynchronizationContext.Post(Sub(state) RaiseEvent AllEvents(commsCode), Nothing)
-
-            'For more specific events we have this map that we're not currently using
-            If receiveCommsDictionary.ContainsKey(commsCode) AndAlso receiveCommsDictionary(commsCode) IsNot Nothing Then
-                originalSynchronizationContext.Post(receiveCommsDictionary(commsCode), Nothing)
-            End If
         End While
     End Sub
 
