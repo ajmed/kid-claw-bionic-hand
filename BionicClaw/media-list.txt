@@ -1,0 +1,14 @@
+101,Middle Finger,Transmissions,16,Middle Finger,Words
+102,Thumbs Up,Transmissions,17,Thumbs Up,Words
+103,Pinkys Out,Transmissions,14,Pinkys Out,Words
+104,Ring On It,Transmissions,28,Ring On It Text,Words
+105,Rude Pointing,Transmissions,12,Rude Pointing,Words
+106,Power Fist,Transmissions,13,Power Fist,Words
+107,Spider Man,Transmissions,34,Spider Man,Words
+108,The Stink,Transmissions,25,The Stink,Words
+109,Hang Loose,Transmissions,39,Hang Loose,Words
+110,Rock Out,Transmissions,21,Rock Out,Words
+111,Peace,Transmissions,17,Peace,Words
+112,Ok,Transmissions,21,Ok,Words
+113,Loser,Transmissions,11,Loser,Words
+114,Scouts Honor,Transmissions,8,Scouts Honor,Words

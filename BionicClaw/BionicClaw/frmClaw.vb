@@ -29,6 +29,8 @@ Public Class frmClaw
     Private arduinoController As ArduinoController
     Private completedGestures As New Dictionary(Of Integer, Boolean)
     Private completedAllGestures As Boolean = False
+    Private completedGestureCount = 0
+    Private totalGestureCount = 0
 
     'OBS Control
     Dim _ws As WebSocket
@@ -96,11 +98,11 @@ Public Class frmClaw
         Dim gestures = [Enum].GetValues(GetType(ArduinoController.Gestures))
         For Each value In gestures
             If (value.Equals(100)) Then
-                'do nothing because we're not trying to track the default gesture
+                'do nothing because we're not tracking the default gesture
             Else
                 completedGestures.Add(value, False)
+                totalGestureCount += 1
             End If
-
         Next
 
     End Sub
@@ -568,20 +570,22 @@ Public Class frmClaw
 
 #Region "Arduino Control"
     Private Sub InitializeArduinoControllerAndHandlers()
-        arduinoController = New ArduinoController(9600, "COM3")
-        AddHandler arduinoController.AllEvents, AddressOf GestureHandler
+        If (arduinoController Is Nothing) Then
+            arduinoController = New ArduinoController(9600, "COM3")
+            AddHandler arduinoController.AllEvents, AddressOf GestureHandler
+        End If
     End Sub
 
     Private Sub GestureHandler(o As String)
         If CInt(o) > 99 And CInt(o) < 200 Then
             Try
-                completedGestures(CInt(o)) = True
-                'First assume we have completed all the gestures, then AND it with each completedGesture
-                'The moment we AND with a false value, the completedAllGestures will go false as well.
-                completedAllGestures = True
-                For Each kvp As KeyValuePair(Of Integer, Boolean) In completedGestures
-                    completedAllGestures &= kvp.Value
-                Next
+                If (completedGestures(CInt(o)) = False) Then
+                    completedGestures(CInt(o)) = True
+                    completedGestureCount += 1
+                    If (completedGestureCount = totalGestureCount) Then
+                        completedAllGestures = True
+                    End If
+                End If
             Catch ex As Exception
                 'couldn't find the gesture in the completed gestures map
             End Try
@@ -986,6 +990,10 @@ AllDone:
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
         arduinoController.RingMinus()
+    End Sub
+
+    Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
+        InitializeArduinoControllerAndHandlers()
     End Sub
 
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click

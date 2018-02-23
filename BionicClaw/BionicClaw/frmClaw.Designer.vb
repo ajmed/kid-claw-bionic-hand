@@ -96,6 +96,7 @@ Partial Class frmClaw
         Me.tmrIntro = New System.Windows.Forms.Timer(Me.components)
         Me.lblTopTotalSeconds = New System.Windows.Forms.Label()
         Me.lblClock = New System.Windows.Forms.Label()
+        Me.Button11 = New System.Windows.Forms.Button()
         Me.grpTwitch.SuspendLayout()
         Me.grpOBS.SuspendLayout()
         Me.grpMedia.SuspendLayout()
@@ -214,6 +215,7 @@ Partial Class frmClaw
         '
         'grpOBS
         '
+        Me.grpOBS.Controls.Add(Me.Button11)
         Me.grpOBS.Controls.Add(Me.Button9)
         Me.grpOBS.Controls.Add(Me.Button10)
         Me.grpOBS.Controls.Add(Me.Button5)
@@ -240,7 +242,7 @@ Partial Class frmClaw
         '
         'Button9
         '
-        Me.Button9.Location = New System.Drawing.Point(140, 134)
+        Me.Button9.Location = New System.Drawing.Point(161, 134)
         Me.Button9.Name = "Button9"
         Me.Button9.Size = New System.Drawing.Size(25, 23)
         Me.Button9.TabIndex = 451
@@ -248,7 +250,7 @@ Partial Class frmClaw
         '
         'Button10
         '
-        Me.Button10.Location = New System.Drawing.Point(140, 165)
+        Me.Button10.Location = New System.Drawing.Point(161, 165)
         Me.Button10.Name = "Button10"
         Me.Button10.Size = New System.Drawing.Size(25, 23)
         Me.Button10.TabIndex = 450
@@ -256,7 +258,7 @@ Partial Class frmClaw
         '
         'Button5
         '
-        Me.Button5.Location = New System.Drawing.Point(78, 134)
+        Me.Button5.Location = New System.Drawing.Point(99, 134)
         Me.Button5.Name = "Button5"
         Me.Button5.Size = New System.Drawing.Size(25, 23)
         Me.Button5.TabIndex = 449
@@ -264,7 +266,7 @@ Partial Class frmClaw
         '
         'Button6
         '
-        Me.Button6.Location = New System.Drawing.Point(78, 165)
+        Me.Button6.Location = New System.Drawing.Point(99, 165)
         Me.Button6.Name = "Button6"
         Me.Button6.Size = New System.Drawing.Size(25, 23)
         Me.Button6.TabIndex = 448
@@ -272,7 +274,7 @@ Partial Class frmClaw
         '
         'Button7
         '
-        Me.Button7.Location = New System.Drawing.Point(109, 134)
+        Me.Button7.Location = New System.Drawing.Point(130, 134)
         Me.Button7.Name = "Button7"
         Me.Button7.Size = New System.Drawing.Size(25, 23)
         Me.Button7.TabIndex = 447
@@ -280,7 +282,7 @@ Partial Class frmClaw
         '
         'Button8
         '
-        Me.Button8.Location = New System.Drawing.Point(109, 165)
+        Me.Button8.Location = New System.Drawing.Point(130, 165)
         Me.Button8.Name = "Button8"
         Me.Button8.Size = New System.Drawing.Size(25, 23)
         Me.Button8.TabIndex = 446
@@ -288,7 +290,7 @@ Partial Class frmClaw
         '
         'Button4
         '
-        Me.Button4.Location = New System.Drawing.Point(47, 165)
+        Me.Button4.Location = New System.Drawing.Point(68, 165)
         Me.Button4.Name = "Button4"
         Me.Button4.Size = New System.Drawing.Size(25, 23)
         Me.Button4.TabIndex = 445
@@ -296,7 +298,7 @@ Partial Class frmClaw
         '
         'Button3
         '
-        Me.Button3.Location = New System.Drawing.Point(47, 134)
+        Me.Button3.Location = New System.Drawing.Point(68, 134)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(25, 23)
         Me.Button3.TabIndex = 444
@@ -304,7 +306,7 @@ Partial Class frmClaw
         '
         'Button2
         '
-        Me.Button2.Location = New System.Drawing.Point(16, 165)
+        Me.Button2.Location = New System.Drawing.Point(37, 165)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(25, 23)
         Me.Button2.TabIndex = 443
@@ -312,7 +314,7 @@ Partial Class frmClaw
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(16, 134)
+        Me.Button1.Location = New System.Drawing.Point(37, 134)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(25, 23)
         Me.Button1.TabIndex = 442
@@ -753,6 +755,15 @@ Partial Class frmClaw
         Me.lblClock.TabIndex = 454
         Me.lblClock.Text = "Time"
         '
+        'Button11
+        '
+        Me.Button11.Location = New System.Drawing.Point(7, 134)
+        Me.Button11.Name = "Button11"
+        Me.Button11.Size = New System.Drawing.Size(24, 23)
+        Me.Button11.TabIndex = 452
+        Me.Button11.Text = "C"
+        Me.Button11.UseVisualStyleBackColor = True
+        '
         'frmClaw
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -873,4 +884,5 @@ Partial Class frmClaw
     Friend WithEvents tmrIntro As Timer
     Friend WithEvents lblTopTotalSeconds As Label
     Friend WithEvents lblClock As Label
+    Friend WithEvents Button11 As Button
 End Class
